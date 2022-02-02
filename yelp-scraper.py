@@ -6,8 +6,8 @@ import urllib
 import csv
 import re
 import time
-
-def html_parse(restUrl):
+of_folder='data/'
+def html_parse(restUrl,businessname):
 	review = []
 	frndCnt = []
 	revNum = []
@@ -18,6 +18,7 @@ def html_parse(restUrl):
 	pages=[]
 	userImage=[]
 	mylist=[]
+	listofindex=["Review","Friends Count","Review Count","Review Date","User Name","Rating","User Image"]
 	# page.clear()
 	
 	# html = urllib.request.urlopen(restUrl)
@@ -48,7 +49,7 @@ def html_parse(restUrl):
 	# 	name_buss = str(name_buss).replace('<h3/>', '')
 	# 	name_buss=str(name_buss)
 	# 	name_bus.append(name_buss)
-	# 	# print(name_buss)
+	# 	print(name_bus)
 
 	for iterReviews in soup.find_all('div',{'class':'review-content'}):
 		# print('heee')
@@ -106,8 +107,12 @@ def html_parse(restUrl):
 		my_list = [x.split()[2] for x in pages]
 		my_list.append(my_list)
 	
+	# wrCsv=dict(zip(listofindex, *[review, frndCnt, revNum, revDate, revName, revStars,userImage]))
+	# print(wrCsv)
+
 	wrCsv = pd.DataFrame(list(zip(*[review, frndCnt, revNum, revDate, revName, revStars,userImage]))).add_prefix('Col')
-	with open('Yelp.csv', 'a') as f:
+
+	with open(of_folder+businessname+".csv", 'a+') as f:
 		wrCsv.to_csv(f, header=False,index = False)
 	return my_list
 def main():
@@ -122,9 +127,9 @@ def main():
 			check = requests.get(restUrl)
 			if check.status_code == 200:
 				print(restUrl)
-				h=html_parse(restUrl)
+				h=html_parse(restUrl,dat1)
 				# input('h')
-				print(h)
+				# print(h)
 				j=h[0]
 				j=int(j)
 				# print(type(j))
@@ -136,7 +141,8 @@ def main():
 					restUrl='https://www.yelp.com/not_recommended_reviews/'+dat1+'?not_recommended_start='+str(next_page)
 					check = requests.get(restUrl)
 					print(restUrl)
-					jj=html_parse(restUrl)
+					time.sleep(2)
+					jj=html_parse(restUrl,dat1)
 					next_page += 10
 			else:
 				continue
