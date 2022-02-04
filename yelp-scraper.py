@@ -18,10 +18,6 @@ def html_parse(restUrl,businessname):
 	pages=[]
 	userImage=[]
 	mylist=[]
-	listofindex=["Review","Friends Count","Review Count","Review Date","User Name","Rating","User Image"]
-	# page.clear()
-	
-	# html = urllib.request.urlopen(restUrl)
 	headers = {'Host': 'www.yelp.com',
 	'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:96.0) Gecko/20100101 Firefox/96.0',
 	'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
@@ -37,29 +33,15 @@ def html_parse(restUrl,businessname):
 	'Sec-Fetch-User': '?1',
 	'Cache-Control': 'max-age=0'}
 	html = requests.get(restUrl,headers=headers)
-	# print(restUrl)
-	# 	print('hhh')
-	soup = BeautifulSoup(html.text, "html.parser")
-	# print(soup)
 
-	# for name_t in soup.find_all('div',{'class':'ysection not-recommended-reviews review-list-wide'}):
-	# 	name_buss= name_t.find('h3')
-	# 	# print('no')
-	# 	name_buss = str(name_buss).replace('<h3>', '')
-	# 	name_buss = str(name_buss).replace('<h3/>', '')
-	# 	name_buss=str(name_buss)
-	# 	name_bus.append(name_buss)
-	# 	print(name_bus)
+	soup = BeautifulSoup(html.text, "html.parser")
 
 	for iterReviews in soup.find_all('div',{'class':'review-content'}):
-		# print('heee')
 		eachReview = iterReviews.find('p')
 		eachReview = str(eachReview).replace('<br>', '')
 		eachReview = str(eachReview).replace('<br/>', '')
 		eachReview = eachReview[13:-4]
-		# print(eachReview)
 		review.append(eachReview)
-
 
 	for iterFrndCnt in soup.find_all('li',{'class':'friend-count responsive-small-display-inline-block'}):
 		eachFrndCnt = iterFrndCnt.find('b')
@@ -82,7 +64,6 @@ def html_parse(restUrl,businessname):
 	for iterName in soup.find_all('li',{'class':'user-name'}):
 		eachName = iterName.find('span')
 		eachName = str(eachName)[75:100]
-		# print(eachName)
 		eachName = eachName.split('<')[0]
 		revName.append(eachName)
 
@@ -95,10 +76,7 @@ def html_parse(restUrl,businessname):
 
 	for iterimage in soup.find_all('div',{'class':'photo-box pb-60s'}):
 		eachimage = iterimage.find('img')
-		# print(eachimage['src'])
 		userImage.append(eachimage['src'])
-		# print(userImage)
-
 
 	for iterpage in soup.find_all('div',{'class':'arrange arrange--stack arrange--baseline arrange--6'}):
 		page = iterpage.find('div')
@@ -107,17 +85,18 @@ def html_parse(restUrl,businessname):
 		my_list = [x.split()[2] for x in pages]
 		my_list.append(my_list)
 	
-	# wrCsv=dict(zip(listofindex, *[review, frndCnt, revNum, revDate, revName, revStars,userImage]))
-	# print(wrCsv)
 
 	wrCsv = pd.DataFrame(list(zip(*[review, frndCnt, revNum, revDate, revName, revStars,userImage]))).add_prefix('Col')
 
 	with open(of_folder+businessname+".csv", 'a+') as f:
 		wrCsv.to_csv(f, header=False,index = False)
+
 	return my_list
+	
 def main():
 	h=[]
 	jj=[]
+	listofindex=["Review","Friends Count","Review Count","Review Date","User Name","Rating","User Image"]
 	f = open('g1.txt', 'r')
 	for line in f:
 		dat = line
@@ -127,16 +106,15 @@ def main():
 			check = requests.get(restUrl)
 			if check.status_code == 200:
 				print(restUrl)
+				with open(of_folder+dat1+".csv", 'w') as file:
+					dw = csv.DictWriter(file, delimiter=',', fieldnames=listofindex)
+					dw.writeheader()
 				h=html_parse(restUrl,dat1)
-				# input('h')
-				# print(h)
 				j=h[0]
 				j=int(j)
-				# print(type(j))
 				next_page = 10
 				k=(j-1)*10
 				print(k)
-				# sleep(2)
 				while next_page <= k:
 					restUrl='https://www.yelp.com/not_recommended_reviews/'+dat1+'?not_recommended_start='+str(next_page)
 					check = requests.get(restUrl)
