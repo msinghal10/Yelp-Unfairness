@@ -8,16 +8,9 @@ import re
 import time
 of_folder='profiles/'
 def html_parse(restUrl,username):
-	since-loca = []
+	loc = []
 	follow = []
 	revNum = []
-	revStars = []
-	revDate = []
-	revName = []
-	name_bus=[]
-	pages=[]
-	userImage=[]
-	mylist=[]
 	headers = {'Host': 'www.yelp.com',
 	'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:96.0) Gecko/20100101 Firefox/96.0',
 	'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
@@ -34,44 +27,32 @@ def html_parse(restUrl,username):
 	'Cache-Control': 'max-age=0'}
 	html = requests.get(restUrl,headers=headers)
 
-	soup = BeautifulSoup(html.text, "html.parser")
+	soup = BeautifulSoup(html.text, "lxml")
 
 
-	for iterReviews in soup.find_all('ul',{'class':'ylist'}):
-		sl = iterReviews.find('li')
-		sl = str(sl).replace('<p>', '')
-		sl = str(sl).replace('</p>', '')
-		since-loca.append(sl)
-
-
-	for iterFrndCnt in soup.find_all('ul',{'class':'ylist ylist--condensed'}):
-		eachFrndCnt = iterFrndCnt.find('li')
-		eachFrndCnt = str(eachFrndCnt).replace('<strong>', '')
-		eachFrndCnt = str(eachFrndCnt).replace('</strong>', '')
-		follow.append(eachFrndCnt)
-
-	for iterRevCnt in soup.find_all('li',{'class':'review-count responsive-small-display-inline-block'}):
-		eachRevCnt = iterRevCnt.find('b')
-		eachRevCnt = str(eachRevCnt).replace('<b>', '')
-		eachRevCnt = str(eachRevCnt).replace('</b>', '')
+	for iterReviews in soup.find_all('div',{'class':'user-details-overview_sidebar'}):
+		for ie in iterReviews.find_all('div',{'class':'ysection'}):
+			event_title = [i.text for i in ie.find_all('ul', {'class': 'ylist'})]
+			loc.append(event_title)
+	print(loc[-1])
+	for iterRevCnt in soup.find_all('a',{'class':'badge-bar u-space-r1'}):
+		eachRevCnt = [i.text for i in iterRevCnt.find_all('span')]
+		eachRevCnt = str(eachRevCnt).replace('<span class="elite-badge">', '')
+		eachRevCnt = str(eachRevCnt).replace('</span>', '')
 		revNum.append(eachRevCnt)
 
-	for iterDate in soup.find_all('span',{'class':'rating-qualifier'}):
-		eachDate = str(iterDate)[40:50]
-		eachDate = str(eachDate).replace('\n', '')
-		eachDate = str(eachDate).replace(' ', '')
-		revDate.append(eachDate)
-
-	
-	wrCsv = pd.DataFrame(list(zip(*[review, frndCnt, revNum, revDate, revName, revStars,userImage]))).add_prefix('Col')
+	if not revNum:
+		revNum.append("NoBadge")
+		
+	wrCsv = pd.DataFrame(list(zip(*[loc[-1],revNum]))).add_prefix('Col')
 	with open(of_folder+username+".csv", 'a') as f:
 		wrCsv.to_csv(f, header=False,index = False)
 	# return my_list
 def main():
 	h=[]
 	jj=[]
-	listofindex=["Review","Friends Count","Review Count","Review Date","User Name","Rating","User Image"]
-	f = open('g1.txt', 'r')
+	listofindex=["Since","Badges"]
+	f = open('g11.txt', 'r')
 	for line in f:
 		dat = line
 		dat1 = dat.replace('\n','')
