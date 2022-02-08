@@ -11,6 +11,7 @@ def html_parse(restUrl,username):
 	loc = []
 	follow = []
 	revNum = []
+	name=[]
 	headers = {'Host': 'www.yelp.com',
 	'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:96.0) Gecko/20100101 Firefox/96.0',
 	'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
@@ -29,12 +30,18 @@ def html_parse(restUrl,username):
 
 	soup = BeautifulSoup(html.text, "lxml")
 
+	for itername in soup.find_all('div',{'class':'user-profile_info arrange_unit'}):
+		eachName = itername.find('h1')
+		eachName = str(eachName).replace('<h1>', '')
+		eachName = str(eachName).replace('</h1>', '')
+		name.append(eachName)
 
+	print(name)
 	for iterReviews in soup.find_all('div',{'class':'user-details-overview_sidebar'}):
 		for ie in iterReviews.find_all('div',{'class':'ysection'}):
 			event_title = [i.text for i in ie.find_all('ul', {'class': 'ylist'})]
 			loc.append(event_title)
-	print(loc[-1])
+	# print(loc[-1])
 	for iterRevCnt in soup.find_all('a',{'class':'badge-bar u-space-r1'}):
 		eachRevCnt = [i.text for i in iterRevCnt.find_all('span')]
 		eachRevCnt = str(eachRevCnt).replace('<span class="elite-badge">', '')
@@ -44,14 +51,14 @@ def html_parse(restUrl,username):
 	if not revNum:
 		revNum.append("NoBadge")
 		
-	wrCsv = pd.DataFrame(list(zip(*[loc[-1],revNum]))).add_prefix('Col')
+	wrCsv = pd.DataFrame(list(zip(*[name,loc[-1],revNum]))).add_prefix('Col')
 	with open(of_folder+username+".csv", 'a') as f:
 		wrCsv.to_csv(f, header=False,index = False)
-	# return my_list
+
 def main():
 	h=[]
 	jj=[]
-	listofindex=["Since","Badges"]
+	listofindex=["User-name","Since","Badges"]
 	f = open('g11.txt', 'r')
 	for line in f:
 		dat = line
@@ -70,10 +77,3 @@ def main():
 		except:
 			pass
 main()
-
-
-
-
-
-
-
