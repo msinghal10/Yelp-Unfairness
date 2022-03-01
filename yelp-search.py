@@ -1,8 +1,9 @@
 import json
 from bs4 import BeautifulSoup
 from urllib.request import Request
-import pandas as pd
 import requests
+import csv
+import os
 
 restUrl='https://www.yelp.com/member_search'
 
@@ -12,13 +13,15 @@ def extract_first_data(markup):
 	# finding the tag with the id attribute
 	c_name = soup.find_all(class_ = 'user-name')
 	c_location = soup.find_all(class_ = 'user-location responsive-hidden-small')
+	c_image=soup.find_all('img', attrs={'class': 'photo-box-img'})
 	c_friend = soup.find_all(class_ = 'friend-count responsive-small-display-inline-block')
 	c_review = soup.find_all(class_ = 'review-count responsive-small-display-inline-block')
 	c_userid = soup.find_all('a', attrs={'class': 'user-display-name js-analytics-click'}) 
-	for n,l,f,r,u in zip(c_name,c_location,c_friend,c_review,c_userid):
+	for n,l,f,r,u,f in zip(c_name,c_location,c_friend,c_review,c_userid,c_image):
 		# print(n.text.strip()," --> ",l.text.strip()," --> ",f.text.strip()," --> ",r.text.strip()," --> ",u['href'].split('=')[-1])
 		temp.append({
 			"userid" : u['href'].split('=')[-1],
+			"userimage" : f['src'],
 			"name" : n.text.strip(),
 			"location" : l.text.strip(),
 			"friends" : f.text.strip(),
@@ -29,14 +32,16 @@ def extract_all_data(markup):
 	soup = BeautifulSoup(markup, 'html.parser')   
 	# finding the tag with the id attribute
 	c_name = soup.find_all(class_ = 'user-name')
+	c_image=soup.find_all('img', attrs={'class': 'photo-box-img'})
 	c_location = soup.find_all(class_ = 'user-location responsive-hidden-small')
 	c_friend = soup.find_all(class_ = 'friend-count responsive-small-display-inline-block')
 	c_review = soup.find_all(class_ = 'review-count responsive-small-display-inline-block')
 	c_userid = soup.find_all('a', attrs={'class': 'user-display-name js-analytics-click'}) 
-	for n,l,f,r,u in zip(c_name,c_location,c_friend,c_review,c_userid):
+	for n,l,f,r,u,f in zip(c_name,c_location,c_friend,c_review,c_userid,c_image):
 		# print(n.text.strip()," --> ",l.text.strip()," --> ",f.text.strip()," --> ",r.text.strip()," --> ",u['href'].split('=')[-1])
 		temp.append({
 			"userid" : u['href'].split('=')[-1],
+			"userimage" : f['src'],
 			"name" : n.text.strip(),
 			"location" : l.text.strip(),
 			"friends" : f.text.strip(),
@@ -52,8 +57,7 @@ def extract_page_number(markup):
 		return p.text.strip().split(" ")[-1]
 
 headers = {'Host': 'www.yelp.com',
-	'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:96.0) Gecko/20100101 Firefox/96.0',
-	# 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+	'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.3 Safari/605.1.15',
     'Accept': 'text/json',
 	'Accept-Language': 'en-US,en;q=0.5',
 	'Accept-Encoding': 'gzip, deflate, br',
@@ -69,37 +73,58 @@ headers = {'Host': 'www.yelp.com',
 	'Sec-Fetch-Site': 'same-origin',
 	'Sec-Fetch-User':'?1',
 	'TE': 'trailers'}
-def data_query(page_number):
+
+def data_query(page_number,q_name,q_state,q_city):
 	return {'csrftok':'9447e231343a3f537ed3211585ac9d1924628061e43ae34f7ea2c8da21cd4310',
 	'start':''+str(page_number)+'',
-	'query':'bob',
+	'query':''+q_name+'',
 	'action_search':'Search',
-	'find_loc': 'CA:Los_Angeles::'}
-dt_start={'csrftok':'9447e231343a3f537ed3211585ac9d1924628061e43ae34f7ea2c8da21cd4310',
-	'query':'bob',
+	'find_loc':''+q_state+':'+q_city+'::'}
+
+def initial_data_query(q_name,q_state,q_city):
+	return {'csrftok':'9447e231343a3f537ed3211585ac9d1924628061e43ae34f7ea2c8da21cd4310',
+	'query':''+q_name+'',
 	'action_search':'Search',
-	'find_loc': 'CA:Los_Angeles::'}
+	'find_loc':''+q_state+':'+q_city+'::'}
 
-print(restUrl)
-check = requests.post('https://www.yelp.com/member_search', data=dt_start, headers=headers)
-out = check.text
-extract_first_data(out)
-# print(final)
-
-#extract the page numbers
-total_page = extract_page_number(out)
-
-#calculation for getting the start page value
-c_page = (int(total_page) * 10) - 10
-
-for i in range(10,c_page,10):
-	print(i)
-	check = requests.post('https://www.yelp.com/member_search', data=data_query(i), headers=headers)
+def initial_check(q_name,q_state,q_city):
+	check = requests.post('https://www.yelp.com/member_search', data=initial_data_query(q_name,q_state,q_city), headers=headers)
 	out = check.text
-	time.sleep(2)
-	extract_all_data(out)
-#Loop through all the pages
-final = json.dumps(temp, indent=2)
-file = open("sample.json", "w")
-file.write(final)
-file.close()
+	print("Reading Page 1")
+	extract_first_data(out)
+	#extract the page numbers
+	total_page = extract_page_number(out)
+	print("Total page numbers: ",total_page)
+	if total_page == None:
+		total_page = 0
+	#calculation for getting the start page value
+	c_page = (int(total_page) * 10) - 10
+	for i in range(10,c_page,10):
+		print("Reading Page: ",(i/10 + 1))
+		check = requests.post('https://www.yelp.com/member_search', data=data_query(i,q_name,q_state,q_city), headers=headers)
+		out = check.text
+		extract_all_data(out)
+
+def write_jsonfile(name,state,city):
+	print('Writing the file')
+	temp_filename = "search/"+name+"_"+state+"_"+city+".json"
+	final = json.dumps(temp, indent=2)
+	if os.path.exists(temp_filename):
+		os.remove(temp_filename)
+	current_directory = os.getcwd()
+	final_directory = os.path.join(current_directory, r'search')
+	if not os.path.exists(final_directory):
+		os.makedirs(final_directory)
+	file = open(temp_filename,"w")
+	file.write(final)
+	file.close()
+	temp.clear()
+
+#read.csv file 
+with open("g12.csv", 'r') as file:
+	csv_file = csv.DictReader(file)
+	for row in csv_file:
+		# print(dict(row).get('Name'))
+		# print(initial_data_query(dict(row).get('Name'),dict(row).get('State'),dict(row).get('City')))		
+		initial_check(dict(row).get('Name'),dict(row).get('State'),dict(row).get('City'))
+		write_jsonfile(dict(row).get('Name'),dict(row).get('State'),dict(row).get('City'))
