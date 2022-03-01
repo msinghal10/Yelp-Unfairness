@@ -17,11 +17,11 @@ def extract_first_data(markup):
 	c_friend = soup.find_all(class_ = 'friend-count responsive-small-display-inline-block')
 	c_review = soup.find_all(class_ = 'review-count responsive-small-display-inline-block')
 	c_userid = soup.find_all('a', attrs={'class': 'user-display-name js-analytics-click'}) 
-	for n,l,f,r,u,f in zip(c_name,c_location,c_friend,c_review,c_userid,c_image):
+	for n,l,f,r,u,t in zip(c_name,c_location,c_friend,c_review,c_userid,c_image):
 		# print(n.text.strip()," --> ",l.text.strip()," --> ",f.text.strip()," --> ",r.text.strip()," --> ",u['href'].split('=')[-1])
 		temp.append({
 			"userid" : u['href'].split('=')[-1],
-			"userimage" : f['src'],
+			"userimage" : t['src'],
 			"name" : n.text.strip(),
 			"location" : l.text.strip(),
 			"friends" : f.text.strip(),
@@ -37,11 +37,11 @@ def extract_all_data(markup):
 	c_friend = soup.find_all(class_ = 'friend-count responsive-small-display-inline-block')
 	c_review = soup.find_all(class_ = 'review-count responsive-small-display-inline-block')
 	c_userid = soup.find_all('a', attrs={'class': 'user-display-name js-analytics-click'}) 
-	for n,l,f,r,u,f in zip(c_name,c_location,c_friend,c_review,c_userid,c_image):
+	for n,l,f,r,u,t in zip(c_name,c_location,c_friend,c_review,c_userid,c_image):
 		# print(n.text.strip()," --> ",l.text.strip()," --> ",f.text.strip()," --> ",r.text.strip()," --> ",u['href'].split('=')[-1])
 		temp.append({
 			"userid" : u['href'].split('=')[-1],
-			"userimage" : f['src'],
+			"userimage" : t['src'],
 			"name" : n.text.strip(),
 			"location" : l.text.strip(),
 			"friends" : f.text.strip(),
