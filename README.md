@@ -1,2 +1,11 @@
-# Yelp-Unfairness
-Project about Unfairness in Yelp
+Auditing Yelp’s Business Ranking and Review Recommendation Through the Lens of Fairness
+#######################
+
+We obtained our recommended dataset from Yelp Dataset Challenge in 2021. You can obtain the dataset from Yelp's website (https://www.yelp.com/dataset). 
+
+
+We obtained the Census data from the US Census website. 
+
+The statistical analysis is done in R.
+
+The Code to create the maps will be made public on request.
