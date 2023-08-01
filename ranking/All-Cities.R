@@ -30,26 +30,20 @@ summary(mylogit)
 
 
 
-
-mylogit <- lm(AverageExposure ~ DWN +  Stars+Hotspot, data=mydata,cluster=mydata$ZIP)
+mylogit <- miceadds::glm.cluster(Hotspot ~ WN + BN + AIN+ AN+HED + HUne + HWe, data=mydata,cluster=mydata$ZIP,family="binomial")
 summary(mylogit)
 
-# Residuals:
-#   Min       1Q   Median       3Q      Max 
-# -0.14392 -0.05670  0.00332  0.03357  0.88606 
-# 
-# Coefficients:
-#   Estimate Std. Error t value Pr(>|t|)    
-# (Intercept) 0.059248   0.015656   3.784 0.000157 ***
-#   DWN         0.008426   0.003638   2.316 0.020620 *  
-#   Stars       0.010759   0.003644   2.953 0.003177 ** 
-#   Hotspot     0.026680   0.003357   7.947 2.72e-15 ***
-#   ---
-#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-# 
-# Residual standard error: 0.08876 on 2864 degrees of freedom
-# Multiple R-squared:  0.02705,	Adjusted R-squared:  0.02603 
-# F-statistic: 26.54 on 3 and 2864 DF,  p-value: < 2.2e-16
+
+# Estimate Std. Error     z value  Pr(>|z|)
+# (Intercept) -0.43561469  0.3803621 -1.14526301 0.2521002
+# WN          -0.03992180  0.2958256 -0.13495047 0.8926510
+# BN           0.18359850  0.3010354  0.60989014 0.5419346
+# AIN         -0.30961199  0.2441437 -1.26815497 0.2047426
+# AN           0.02540780  0.2599718  0.09773292 0.9221444
+# HED          0.33930382  0.3018038  1.12425289 0.2609058
+# HUne        -0.04807908  0.3195129 -0.15047619 0.8803889
+# HWe         -0.06300641  0.2994297 -0.21042135 0.8333388
+
 
 
 ##################################################### Anchorage ####################################################
