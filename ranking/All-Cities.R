@@ -8,24 +8,25 @@ library(car)
 
 mydata <- read_csv("/ranking/Cities-CSV/All_Cities-Combined.csv",col_types = cols(Restaurant=col_character(),Latitude=col_double(),Longitude=col_double(),Address=col_character(),PlaceID=col_character(),URL=col_character(),AverageExposure=col_double(),Stars=col_double(),ZIP=col_integer(),Count=col_integer(),White=col_integer(),ofWhite=col_double(),DWN=col_integer(),WN=col_integer(),Black=col_integer(),ofBlack=col_double(),BN=col_integer(),AmericanIndaian=col_integer(),ofAI=col_double(),AIN=col_integer(),Asian=col_integer(),ofAisan=col_double(),AN=col_integer(),NativeHawiian=col_integer(),ofNativeHawiian=col_double(),NHN=col_integer(),Edu=col_integer(),ofEDU=col_double(),HED=col_integer(),Unemployment=col_double(),HUne=col_integer(),Wealth=col_integer(),HWe=col_integer(),Attraction=col_integer(),Hotspot=col_integer()))
 
-mylogit <- lm(AverageExposure ~ Hotspot, data=mydata)
+mylogit <- lm(AverageExposure ~ Hotspot+Stars, data=mydata)
 summary(mylogit)
 
 
 # Residuals:
-#   Min       1Q   Median       3Q      Max 
-# -0.13282 -0.05809  0.00270  0.03341  0.89022 
-# 
+#      Min       1Q   Median       3Q      Max 
+# -0.14134 -0.05733  0.00316  0.03399  0.88884 
+
 # Coefficients:
-#   Estimate Std. Error t value Pr(>|t|)    
-# (Intercept) 0.109776   0.002195   50.02  < 2e-16 ***
-#   Hotspot     0.027258   0.003357    8.12 6.82e-16 ***
-#   ---
-#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-# 
-# Residual standard error: 0.08893 on 2866 degrees of freedom
-# Multiple R-squared:  0.02249,	Adjusted R-squared:  0.02215 
-# F-statistic: 65.94 on 1 and 2866 DF,  p-value: 6.823e-16
+#             Estimate Std. Error t value Pr(>|t|)    
+# (Intercept) 0.066739   0.015330   4.353 1.39e-05 ***
+# Hotspot     0.027183   0.003353   8.108 7.56e-16 ***
+# Stars       0.010331   0.003642   2.837  0.00459 ** 
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+# Residual standard error: 0.08882 on 2865 degrees of freedom
+# Multiple R-squared:  0.02523,	Adjusted R-squared:  0.02455 
+# F-statistic: 37.08 on 2 and 2865 DF,  p-value: < 2.2e-16
 # 
 
 
