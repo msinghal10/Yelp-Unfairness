@@ -10,3 +10,12 @@ We obtained the Census data from the US Census website.
 The statistical analysis is done in R.
 
 The Code to create the maps will be made public on request.
+
+Please cite our paper as:
+@article{singhal2023auditing,
+  title={Auditing Yelp's Business Ranking and Review Recommendation Through the Lens of Fairness},
+  author={Singhal, Mohit and Pacheco, Javier and Debi, Tanushree and Khorzooghi, Seyyed Mohammad Sadegh Moosavi and Asudeh, Abolfazl and Das, Gautam and Nilizadeh, Shirin},
+  journal={arXiv preprint arXiv:2308.02129},
+  year={2023}
+}
+
